@@ -6,9 +6,14 @@
 package view;
 
 import Control.ClientControl;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.User;
+import model.serverSendObject;
 import model.userRegister;
+import model.userSendObject;
 
 /**
  *
@@ -33,14 +38,14 @@ public class Register extends javax.swing.JFrame {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        sendbtn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        jTextField2 = new javax.swing.JTextField();
+        txtUsername = new javax.swing.JTextField();
+        txtPassword = new javax.swing.JPasswordField();
+        txtemail = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -53,11 +58,11 @@ public class Register extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setForeground(new java.awt.Color(204, 0, 102));
-        jButton2.setText("send");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        sendbtn.setForeground(new java.awt.Color(204, 0, 102));
+        sendbtn.setText("send");
+        sendbtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                sendbtnActionPerformed(evt);
             }
         });
 
@@ -66,6 +71,12 @@ public class Register extends javax.swing.JFrame {
         jLabel2.setText("Password :");
 
         jLabel3.setText("Email :");
+
+        txtemail.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtemailActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -78,24 +89,24 @@ public class Register extends javax.swing.JFrame {
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField2)
-                    .addComponent(jTextField1)
-                    .addComponent(jPasswordField1)))
+                    .addComponent(txtemail)
+                    .addComponent(txtUsername)
+                    .addComponent(txtPassword)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtemail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -115,7 +126,7 @@ public class Register extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addComponent(sendbtn)
                 .addGap(22, 22, 22))
             .addGroup(layout.createSequentialGroup()
                 .addGap(67, 67, 67)
@@ -132,30 +143,40 @@ public class Register extends javax.swing.JFrame {
                 .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(sendbtn))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void sendbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendbtnActionPerformed
         // TODO add your handling code here:
-        if (evt.getSource().equals(jButton2)) {
-            userRegister model = new userRegister(jTextField1.getText(),
-                    jPasswordField1.getText(),jTextField2.getText());
-            ClientControl clientCtr = new ClientControl();
-            clientCtr.openConnection();
-            clientCtr.sendData(model);
-            String result = clientCtr.receiveData();
-            if (result.equals("ok")) {
-                showMessage("Register succesfully!please return and login again");
-            } else {
-                showMessage("Invalid username and/or password!");
+        if (evt.getSource().equals(sendbtn)) {
+             try {
+                User model = new User(txtUsername.getText(),
+                        txtPassword.getText(),txtemail.getText());
+                userSendObject uso=new userSendObject(2,true, model);
+                ClientControl  clientCtr = new ClientControl();
+                System.out.println("view.clientView1.jButton1ActionPerformed()");
+                clientCtr.sendData(uso);
+                
+                serverSendObject re = clientCtr.receiveData();
+                
+                if (re.isCheck()) {
+                    showMessage("register succesfully!");
+                    Searchview se=new Searchview(model);
+                    se.setVisible(true);
+                    this.dispose();
+                } else {
+                    showMessage("Invalid username and/or password!");
+                }      clientCtr.closeConnection();
+            } catch (IOException ex) {
+                Logger.getLogger(clientView1.class.getName()).log(Level.SEVERE, null, ex);
             }
-            clientCtr.closeConnection();
         }
-    }//GEN-LAST:event_jButton2ActionPerformed
+        
+    }//GEN-LAST:event_sendbtnActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
@@ -163,6 +184,10 @@ public class Register extends javax.swing.JFrame {
         this.dispose();
         cl.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void txtemailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtemailActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtemailActionPerformed
 
     /**
      * @param args the command line arguments
@@ -201,15 +226,15 @@ public class Register extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JButton sendbtn;
+    private javax.swing.JPasswordField txtPassword;
+    private javax.swing.JTextField txtUsername;
+    private javax.swing.JTextField txtemail;
     // End of variables declaration//GEN-END:variables
 
     private void showMessage(String login_succesfully) {

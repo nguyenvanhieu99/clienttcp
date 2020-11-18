@@ -13,9 +13,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import model.User;
+import model.serverSendObject;
+import model.userSendObject;
 
 public class ClientView extends JFrame implements ActionListener {
-
+    
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton btnLogin;
@@ -47,11 +49,13 @@ public class ClientView extends JFrame implements ActionListener {
         if (e.getSource().equals(btnLogin)) {
             User model = new User(txtUsername.getText(),
                     txtPassword.getText());
+            userSendObject uso=new userSendObject(1,true, model);
             ClientControl clientCtr = new ClientControl();
-            clientCtr.openConnection();
-            clientCtr.sendData(model);
-            String result = clientCtr.receiveData();
-            if (result.equals("ok")) {
+         
+            clientCtr.sendData(uso);
+            serverSendObject re = clientCtr.receiveData();
+            
+            if (re.isCheck()) {
                 showMessage("Login succesfully!");
             } else {
                 showMessage("Invalid username and/or password!");
